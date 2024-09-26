@@ -1,0 +1,23 @@
+# Dependabot configuration file for Rust project
+# For more info: https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+updates:
+  - package-ecosystem: "cargo"  # Specify Cargo for Rust projects
+    directory: "/"  # Location of Cargo.toml
+    schedule:
+      interval: "weekly"  # Check for updates once a week
+    open-pull-requests-limit: 10  # Limit number of open PRs
+    target-branch: "main"  # The branch to create pull requests against
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "rust"
+    ignore:
+      # Ignore updates to packages that start with 'aws'
+      # - dependency-name: "aws*"
+      # For all packages, ignore all patch updates
+      # - dependency-name: "*"
+      #   update-types: ["version-update:semver-patch"]
