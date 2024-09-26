@@ -14,7 +14,7 @@ Docker/Podman AutoCompose is a utility that automatically generates docker-compo
 ### Prerequisites
 
 - Rust programming language (latest stable version)
-- Docker or Podman installed on your system
+
 
 ### Building from source
 
