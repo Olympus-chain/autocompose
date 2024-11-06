@@ -16,7 +16,7 @@ We take security seriously. If you discover a security vulnerability, please fol
    - Do not share vulnerability information on forums or social media
 
 2. **Contact Us**
-   - Send a detailed email to [security@yourproject.com](mailto:security@yourproject.com)
+   - Send a detailed email to [security@yourproject.com](mailto:security@olympus-chain.fr)
    - If possible, encrypt your message with our public PGP key (provided below)
 
 3. **Include in Your Report**
