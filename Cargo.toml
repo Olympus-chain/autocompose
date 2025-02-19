@@ -1,13 +1,13 @@
 [package]
 name = "docker-autocompose"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Romain Leonard"]
 edition = "2021"
 
 
 [[bin]]
 name = "docker-autocompose"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Romain Leonard"]
 edition = "2021"
 test = false
@@ -17,7 +17,7 @@ path = "src/bin/docker.rs"
 
 [[bin]]
 name = "podman-autocompose"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Romain Leonard"]
 edition = "2021"
 test = false
@@ -29,4 +29,7 @@ bollard = "0.18.1"
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9"
 serde_json = "1.0"
-tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
+tokio = { version = "1.0", features = ["full"] }
+clap = { version = "4.0", features = ["derive"] }
+futures = "0.3"
+
