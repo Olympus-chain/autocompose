@@ -1,5 +1,89 @@
 # Changelog
 
+This document lists the changes made to the **autocompose-podman-docker** project.
+
+---
+
+## Recent Changes
+
+- **Commit `9f347d3`** *(2025-04-14)*
+  Change container information
+
+- **Commit `3fc727f`** *(2025-04-14)*
+  chore(deps): bump tokio from 1.44.1 to 1.44.2 (#18)
+
+- **Commit `24b6082`** *(2025-04-14)*
+  chore(deps): bump clap from 4.5.34 to 4.5.36 (#21)
+
+- **Commit `f87467b`** *(2025-04-14)*
+  chore(deps): bump tokio from 1.44.1 to 1.44.2 (#20)
+
+- **Commit `674315d`** *(2025-03-31)*
+  chore(deps): bump tokio from 1.44.0 to 1.44.1 (#16)
+
+- **Commit `e5eff2f`** *(2025-03-31)*
+  chore(deps): bump clap from 4.5.31 to 4.5.34 (#17)
+
+- **Commit `63e0a0e`** *(2025-03-12)*
+  chore(deps): bump serde from 1.0.218 to 1.0.219 (#12)
+
+- **Commit `ad117b4`** *(2025-03-12)*
+  chore(deps): bump serde_json from 1.0.139 to 1.0.140 (#13)
+
+- **Commit `d46aba9`** *(2025-03-12)*
+  chore(deps): bump tokio from 1.43.0 to 1.44.0 (#14)
+
+- **Commit `1d22fd3`** *(2025-03-03)*
+  chore(deps): bump clap from 4.5.30 to 4.5.31 (#11)
+
+- **Commit `a3edecf`** *(2025-02-27)*
+  chore(deps): bump serde from 1.0.217 to 1.0.218 (#9)
+
+- **Commit `75a0cc6`** *(2025-02-27)*
+  chore(deps): bump serde_json from 1.0.138 to 1.0.139 (#10)
+
+- **Commit `120d70b`** *(2025-02-20)*
+  adds rc1 (#7) (#8)
+
+- **Commit `815bd93`** *(2025-01-31)*
+  Merge pull request #5 from Drasrax/dependabot/cargo/main/serde_json-1.0
+
+- **Commit `9f0dafe`** *(2025-01-31)*
+  Merge pull request #6 from Drasrax/dependabot/cargo/main/bollard-0.18.1
+
+- **Commit `0b5ebbf`** *(2025-01-13)*
+  chore(deps): update bollard requirement from 0.11.0 to 0.18.1
+
+- **Commit `8c08b20`** *(2025-01-13)*
+  chore(deps): update serde_json requirement from 0.9 to 1.0
+
+- **Commit `e12abf7`** *(2024-11-06)*
+  Update SECURITY.md
+
+- **Commit `b0162f1`** *(2024-11-06)*
+  Update SECURITY.md
+
+- **Commit `d264668`** *(2024-10-28)*
+  Create SECURITY.md
+
+- **Commit `e7d0f57`** *(2024-09-26)*
+  Update dependabot.yml
+
+- **Commit `bb11cf5`** *(2024-09-26)*
+  Create dependabot.yml
+
+- **Commit `aa40725`** *(2024-09-26)*
+  Update README.md
+
+- **Commit `f180a0b`** *(2024-09-26)*
+  Update README.md
+
+- **Commit `92786a1`** *(2024-09-26)*
+  Update LICENSE
+
+- **Commit `7836ed5`** *(2024-09-19)*
+  Initial commit
+
 ### Docker Exporter (Bollard)
 
 - **Performance & Concurrency**
