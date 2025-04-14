@@ -321,7 +321,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             Ok(Err(e)) => eprintln!("Error processing a container: {:?}", e),
             Err(e) => eprintln!("Task canceled or failed: {:?}", e),
         }
-    }Incomplete container information
+    }
 
     let compose_file = ComposeFile {
         version: args.version,
@@ -355,4 +355,3 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Docker Compose file generated successfully!");
     Ok(())
 }
-
