@@ -1,0 +1,78 @@
+# Rust build artifacts
+/target/
+**/*.rs.bk
+*.pdb
+
+# Cargo.lock should be ignored for libraries but included for binaries
+# Since autocompose is a binary, we'll ignore it as requested
+Cargo.lock
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Documentation build artifacts
+/docs-html/
+
+# Test and coverage files
+tarpaulin-report.html
+cobertura.xml
+coverage/
+*.profraw
+*.profdata
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+.temp/
+
+# OS specific files
+Thumbs.db
+desktop.ini
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Log files
+*.log
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Build scripts artifacts
+/dist/
+/build/
+/releases/
+
+# Cross compilation artifacts
+/.cargo/
+/Cross.toml.local
+
+# Debug artifacts
+*.dSYM/
+*.dSYM
+
+# Benchmarking
+/benches/target/
+perf.data
+perf.data.old
+flamegraph.svg
+
+
+# Python cache (if any Python scripts are used)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Node modules (if any JS/TS tooling is used)
+node_modules/
+
