@@ -2,7 +2,7 @@
 
 <div align="center">
 
-[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/Olympus-chain/autocompose/releases)
+[![Version](https://img.shields.io/badge/version-1.5.0-blue.svg)](https://github.com/Olympus-chain/autocompose/releases)
 [![License](https://img.shields.io/badge/license-OCISL-green.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/rust-1.65+-orange.svg)](https://www.rust-lang.org)
 [![Docker](https://img.shields.io/badge/docker-20.10+-blue.svg)](https://www.docker.com)
