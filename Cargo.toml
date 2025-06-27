@@ -1,35 +1,38 @@
 [package]
-name = "docker-autocompose"
-version = "1.0.0"
-authors = ["Romain Leonard"]
+name = "autocompose"
+version = "1.5.0"
+authors = ["Olympus Chain <contact@olympus-chain.fr>"]
 edition = "2021"
-
+license-file = "LICENSE"
 
 [[bin]]
-name = "docker-autocompose"
-version = "1.0.0"
-authors = ["Romain Leonard"]
-edition = "2021"
-test = false
-bench = false
-path = "src/bin/docker.rs"
-
+name = "autocompose"
+path = "src/bin/autocompose.rs"
 
 [[bin]]
-name = "podman-autocompose"
-version = "1.0.0"
-authors = ["Romain Leonard"]
-edition = "2021"
-test = false
-bench = false
-path = "src/bin/podman.rs"
+name = "docker-autocompose-v2"
+path = "src/bin/docker_new.rs"
+
+[[bin]]
+name = "podman-autocompose-v2"
+path = "src/bin/podman_new.rs"
 
 [dependencies]
-bollard = "0.19.1"
+bollard = "0.19.0"
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9"
 serde_json = "1.0"
 tokio = { version = "1.45", features = ["full"] }
 clap = { version = "4.5", features = ["derive"] }
 futures = "0.3"
+thiserror = "1.0"
+toml = "0.8"
+dirs = "5.0"
+regex = "1.0"
+dialoguer = "0.11"
+lazy_static = "1.4"
+shell-words = "1.1"
+
+[dev-dependencies]
+tempfile = "3.0"
 

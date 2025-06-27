@@ -1,19 +1,62 @@
-# Olympus Non-Commercial Software License
+# Olympus Chain Internal Source License (OCISL) – Version 1.1
 
-Copyright (c) 2024 Romain Leonard
+**Copyright (c) 2025 Olympus Chain SAS. All rights reserved.**
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to use, copy, modify, merge, and distribute the Software for non-commercial purposes only, subject to the following conditions:
+---
 
-1. The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+## Article 1 – Purpose
 
-2. The Software may not be used for commercial purposes. For the purpose of this license, commercial purposes means using the Software in any way that generates revenue, including but not limited to selling the Software, using the Software as part of a service or product for which a fee is charged, or using the Software to support commercial activities.
+This license governs access to the source code of **autocompose**.  
+It allows reading and modifying the code under conditions, for **non-commercial use only**.
 
-3. Redistribution of the Software or any derivative works thereof is permitted only if it is for non-commercial purposes and the recipient agrees to be bound by the terms of this license.
+---
 
-4. Any organization, company, or legal entity that wishes to use this Software must obtain explicit written permission from the copyright holder.
+## Article 2 – Terms of Use
 
-5. The Software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the Software or the use or other dealings in the Software.
+### 2.1. Reading and modification  
+Users may freely read, analyze, and modify the source code, **only within the original Git repository**.  
+Any full or partial extraction of the code for commercial use or reuse in another project is **prohibited without prior written authorization**.
 
-6. This license may be revised or updated at any time by the copyright holder, and the revised terms shall apply to all versions of the Software distributed after the revision date.
+### 2.2. Forks  
+Forks are allowed **only for contribution or personal non-commercial use**.  
+Forking the code with the intent to **reuse it in another software or project** is strictly prohibited unless explicitly authorized.
 
-By using, copying, modifying, or distributing the Software, you agree to be bound by the terms of this license.
+### 2.3. Commercial use  
+Any direct or indirect **commercial use** of the code, whether original or modified, requires **explicit written permission** from Olympus Chain SASU.
+
+---
+
+## Article 3 – Prohibitions
+
+- Redistribution of the code in another project is forbidden.  
+- Commercial exploitation is forbidden without permission.  
+- Code integration into third-party software, even open-source, is prohibited without written consent.
+
+---
+
+## Article 4 – Disclaimer
+
+This software is provided **"as is"**, without warranty of any kind.  
+Olympus Chain SASU shall not be liable for any damages resulting from its use.
+
+---
+
+## Article 5 – Termination
+
+This license becomes effective upon accessing the source.  
+It may be revoked immediately in case of violation.
+
+---
+
+## Article 6 – Governing Law
+
+This license is governed by **French law**.  
+Any dispute will fall under the exclusive jurisdiction of the court of **Nanterre, France**.
+
+---
+
+## Contact
+
+For commercial inquiries or permission requests, please contact:  
+**contact@olympus-chain.fr**
+

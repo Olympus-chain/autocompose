@@ -283,7 +283,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let docker = Docker::connect_with_local_defaults()?;
     let list_options = ListContainersOptions::<String> {
-        all: if args.running_only { false } else { true },
+        all: !args.running_only,
         ..Default::default()
     };
 
