@@ -1,0 +1,30 @@
+# Cross compilation configuration
+
+# For macOS targets, we need to use osxcross or similar
+# Since these require special setup, we'll skip them for now
+[target.x86_64-apple-darwin]
+image = "ghcr.io/cross-rs/x86_64-apple-darwin:main"
+
+[target.aarch64-apple-darwin]
+image = "ghcr.io/cross-rs/aarch64-apple-darwin:main"
+
+# Ensure we use the correct images for Linux targets
+[target.x86_64-unknown-linux-gnu]
+image = "ghcr.io/cross-rs/x86_64-unknown-linux-gnu:main"
+
+[target.aarch64-unknown-linux-gnu]
+image = "ghcr.io/cross-rs/aarch64-unknown-linux-gnu:main"
+
+[target.armv7-unknown-linux-gnueabihf]
+image = "ghcr.io/cross-rs/armv7-unknown-linux-gnueabihf:main"
+
+# Use a specific image for aarch64 musl to avoid GLIBC issues
+[target.aarch64-unknown-linux-musl]
+image = "ghcr.io/cross-rs/aarch64-unknown-linux-musl:main"
+
+# Windows targets with newer GLIBC support
+[target.x86_64-pc-windows-gnu]
+image = "ghcr.io/cross-rs/x86_64-pc-windows-gnu:main"
+
+[target.i686-pc-windows-gnu]
+image = "ghcr.io/cross-rs/i686-pc-windows-gnu:main"

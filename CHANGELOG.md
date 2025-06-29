@@ -4,7 +4,22 @@ This document lists the changes made to the **autocompose-podman-docker** projec
 
 ---
 
+## Release Builds
+
+### Available Platforms
+
+- **windows-x64**: `autocompose-windows-x64.zip`
+- **linux-x64**: `autocompose-linux-x64.tar.gz`
+- **linux-arm64**: `autocompose-linux-arm64.tar.gz`
+- **linux-x64-musl**: `autocompose-linux-x64-musl.tar.gz`
+- **linux-armv7**: `autocompose-linux-armv7.tar.gz`
+
+---
+
 ## Recent Changes
+
+- **Commit pending** *(2025-06-16)*
+  Fixed documentation code block formatting - Added proper white-space handling (pre-wrap) to ensure code blocks display line breaks correctly
 
 - **Commit `9f347d3`** *(2025-04-14)*
   Change container information

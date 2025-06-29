@@ -52,7 +52,7 @@ fn compute_subnet(gateway: &str, prefix_len: u64) -> Option<String> {
 
 async fn inspect_container(id: String) -> Result<Value, Box<dyn std::error::Error + Send + Sync>> {
     let output = Command::new("podman")
-        .args(&["inspect", &id])
+        .args(["inspect", &id])
         .output()
         .await?;
     let inspect_data: Value = serde_json::from_slice(&output.stdout)?;
@@ -62,7 +62,7 @@ async fn inspect_container(id: String) -> Result<Value, Box<dyn std::error::Erro
 
 async fn get_image_repo(image_id: &str) -> Option<String> {
     let output = Command::new("podman")
-        .args(&["image", "inspect", image_id])
+        .args(["image", "inspect", image_id])
         .output()
         .await
         .ok()?;
@@ -70,7 +70,7 @@ async fn get_image_repo(image_id: &str) -> Option<String> {
 
     let repo_tags = image_info.get(0)?.get("RepoTags")?;
     if let Some(arr) = repo_tags.as_array() {
-        if let Some(first) = arr.get(0)?.as_str() {
+        if let Some(first) = arr.first()?.as_str() {
             return Some(first.to_string());
         }
     }
@@ -448,7 +448,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let mut global_networks: HashMap<String, serde_yaml::Value> = HashMap::new();
 
     let ps_output = Command::new("podman")
-        .args(&["ps", "-a", "--format", "{{.ID}}"])
+        .args(["ps", "-a", "--format", "{{.ID}}"])
         .output()
         .await?;
     let container_ids = String::from_utf8(ps_output.stdout)?
@@ -512,7 +512,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     for service in services.values_mut() {
         if let Some(ComposeValue::String(image_val)) = service.get_mut("image") {
-            if image_val.len() == 64 && image_val.chars().all(|c| c.is_digit(16)) {
+            if image_val.len() == 64 && image_val.chars().all(|c| c.is_ascii_hexdigit()) {
                 if let Some(repo) = get_image_repo(image_val).await {
                     *image_val = repo;
                 }
