@@ -238,7 +238,7 @@ async fn main() -> Result<()> {
         processor.process_containers_parallel(container_ids).await?;
 
     let compose_file = ComposeFile {
-        version: args.version.clone(),
+        version: args.compose_version.clone(),
         services,
         networks: if networks.is_empty() {
             None
@@ -253,7 +253,7 @@ async fn main() -> Result<()> {
     };
 
     if !args.dry_run {
-        let validator = Validator::new(true, Some(args.version.clone()));
+        let validator = Validator::new(true, Some(args.compose_version.clone()));
         let validation_report = validator.validate_compose_object(&compose_file);
 
         if !validation_report.warnings.is_empty() || !validation_report.suggestions.is_empty() {

@@ -8,7 +8,7 @@ Commercial use, redistribution, or reuse in other software is prohibited without
 Contact: contact@olympus-chain.fr
 */
 
-use docker_autocompose::security::*;
+use autocompose::security::*;
 use std::path::Path;
 
 #[cfg(test)]

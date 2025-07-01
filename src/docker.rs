@@ -20,17 +20,122 @@ use bollard::container::{InspectContainerOptions, ListContainersOptions};
 use bollard::models::{ContainerInspectResponse, ContainerSummary, RestartPolicyNameEnum};
 use bollard::Docker;
 use futures::stream::{FuturesUnordered, StreamExt};
+use serde::{Deserialize, Serialize};
 use serde_yaml::Value;
 use std::collections::HashMap;
+use std::path::PathBuf;
 
 pub struct DockerProcessor {
     docker: Docker,
+}
+
+pub struct ProcessingOptions {
+    pub include_sensitive: bool,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+struct DockerContext {
+    #[serde(rename = "Name")]
+    name: String,
+    #[serde(rename = "Metadata")]
+    metadata: HashMap<String, serde_json::Value>,
+    #[serde(rename = "Endpoints")]
+    endpoints: HashMap<String, EndpointConfig>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+struct EndpointConfig {
+    #[serde(rename = "Host")]
+    host: Option<String>,
+    #[serde(rename = "SkipTLSVerify")]
+    skip_tls_verify: Option<bool>,
+}
+
+#[derive(Debug, Deserialize)]
+struct DockerConfig {
+    #[serde(rename = "currentContext")]
+    current_context: Option<String>,
 }
 
 impl DockerProcessor {
     pub fn new() -> Result<Self> {
         let docker = Docker::connect_with_local_defaults()?;
         Ok(Self { docker })
+    }
+    
+    pub fn new_with_host(docker_host: &str) -> Result<Self> {
+        let docker = Docker::connect_with_http(docker_host, 120, bollard::API_DEFAULT_VERSION)?;
+        Ok(Self { docker })
+    }
+    
+    pub fn new_with_context(context_name: &str) -> Result<Self> {
+        // Try to read Docker context configuration
+        if let Some(context_endpoint) = Self::read_docker_context(context_name)? {
+            let docker = Docker::connect_with_http(&context_endpoint, 120, bollard::API_DEFAULT_VERSION)?;
+            Ok(Self { docker })
+        } else {
+            // Fallback to default if context not found
+            eprintln!("Warning: Docker context '{}' not found, using default connection", context_name);
+            Self::new()
+        }
+    }
+    
+    fn read_docker_context(context_name: &str) -> Result<Option<String>> {
+        // First, try to read from Docker CLI config directory
+        let home = std::env::var("HOME").unwrap_or_else(|_| "/root".to_string());
+        let docker_config_path = PathBuf::from(&home).join(".docker");
+        
+        // Check if we should use the current context
+        let target_context = if context_name == "current" {
+            // Read the current context from config.json
+            let config_file = docker_config_path.join("config.json");
+            if config_file.exists() {
+                let config_data = std::fs::read_to_string(&config_file)?;
+                let config: DockerConfig = serde_json::from_str(&config_data)
+                    .unwrap_or(DockerConfig { current_context: None });
+                config.current_context.unwrap_or_else(|| "default".to_string())
+            } else {
+                "default".to_string()
+            }
+        } else {
+            context_name.to_string()
+        };
+        
+        // Special case for default context
+        if target_context == "default" {
+            // Check DOCKER_HOST environment variable first
+            if let Ok(docker_host) = std::env::var("DOCKER_HOST") {
+                return Ok(Some(docker_host));
+            }
+            // Otherwise use local socket
+            return Ok(None);
+        }
+        
+        // Try to read context metadata
+        let contexts_dir = docker_config_path.join("contexts").join("meta");
+        let context_hash = Self::hash_context_name(&target_context);
+        let context_meta_file = contexts_dir.join(&context_hash).join("meta.json");
+        
+        if context_meta_file.exists() {
+            let meta_data = std::fs::read_to_string(&context_meta_file)?;
+            let context: DockerContext = serde_json::from_str(&meta_data)?;
+            
+            // Extract Docker endpoint
+            if let Some(docker_endpoint) = context.endpoints.get("docker") {
+                if let Some(host) = &docker_endpoint.host {
+                    return Ok(Some(host.clone()));
+                }
+            }
+        }
+        
+        Ok(None)
+    }
+    
+    fn hash_context_name(name: &str) -> String {
+        use sha2::{Sha256, Digest};
+        let mut hasher = Sha256::new();
+        hasher.update(name.as_bytes());
+        format!("{:x}", hasher.finalize())
     }
 
     pub async fn list_containers(&self, running_only: bool) -> Result<Vec<ContainerSummary>> {
@@ -50,12 +155,25 @@ impl DockerProcessor {
         HashMap<String, Value>,
         HashMap<String, Value>,
     )> {
+        self.process_containers_parallel_with_options(containers, ProcessingOptions { include_sensitive: false }).await
+    }
+    
+    pub async fn process_containers_parallel_with_options(
+        &self,
+        containers: Vec<ContainerSummary>,
+        options: ProcessingOptions,
+    ) -> Result<(
+        HashMap<String, Service>,
+        HashMap<String, Value>,
+        HashMap<String, Value>,
+    )> {
         let mut tasks = FuturesUnordered::new();
 
         for container in containers {
             let docker_clone = self.docker.clone();
+            let include_sensitive = options.include_sensitive;
             tasks.push(tokio::spawn(async move {
-                Self::process_single_container(docker_clone, container).await
+                Self::process_single_container(docker_clone, container, include_sensitive).await
             }));
         }
 
@@ -89,6 +207,7 @@ impl DockerProcessor {
     async fn process_single_container(
         docker: Docker,
         container: ContainerSummary,
+        include_sensitive_vars: bool,
     ) -> Result<(String, Service, Vec<String>, Vec<String>)> {
         let container_id = container.id.clone().ok_or_else(|| {
             AutoComposeError::ContainerInspection("Container ID is missing".to_string())
@@ -98,12 +217,13 @@ impl DockerProcessor {
             .inspect_container(&container_id, None::<InspectContainerOptions>)
             .await?;
 
-        Self::extract_service_from_inspect(inspect, container)
+        Self::extract_service_from_inspect(inspect, container, include_sensitive_vars)
     }
 
     fn extract_service_from_inspect(
         inspect: ContainerInspectResponse,
         container: ContainerSummary,
+        include_sensitive_vars: bool,
     ) -> Result<(String, Service, Vec<String>, Vec<String>)> {
         let (config, host_config, network_settings) = match (
             inspect.config,
@@ -142,8 +262,12 @@ impl DockerProcessor {
                     }
                 })
                 .collect();
-            // Filter out sensitive environment variables
-            let filtered_env = filter_sensitive_env_vars(env_map);
+            // Filter out sensitive environment variables unless include_sensitive is true
+            let filtered_env = if include_sensitive_vars {
+                env_map
+            } else {
+                filter_sensitive_env_vars(env_map)
+            };
             if filtered_env.is_empty() {
                 None
             } else {

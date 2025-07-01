@@ -142,7 +142,7 @@ autocompose -o docker-compose.yml
 autocompose --format json -o compose.json
 
 # YAML con versión específica
-autocompose --compose-version 3.8 -o compose-v3.8.yml
+autocompose --version 3.8 -o compose-v3.8.yml
 
 # Salida compacta
 autocompose --compact -o minimal.yml
@@ -157,10 +157,22 @@ autocompose [OPCIONES] [CONTENEDORES...]
 
 OPCIONES:
     -o, --output <ARCHIVO>        Archivo de salida (defecto: docker-compose.yml)
-    -f, --format <FORMATO>        Formato de salida: yaml, json (defecto: yaml)
-    -v, --compose-version <VER>   Versión del archivo compose (defecto: 3.8)
+    -f, --filter <PATRÓN>         Filtrar contenedores por patrón (soporta * y ?)
+    -v, --version <VER>           Versión del archivo compose (defecto: 3.9)
+    -i, --interactive             Selección interactiva de contenedores
+    --format <FORMATO>            Formato de salida: yaml, json, toml (defecto: yaml)
     --dry-run                     Vista previa sin escribir archivo
-    --interactive                 Selección interactiva de contenedores
+    --preview                     Mostrar vista previa sin escribir
+    --exclude <PATRÓN>            Excluir contenedores por patrón
+    --exclude-system              Excluir contenedores del sistema
+    --docker-host <URL>           Conectar a host Docker específico
+    --context <NOMBRE>            Usar contexto Docker específico
+    --include-networks            Incluir definiciones de red
+    --include-volumes             Incluir definiciones de volumen
+    --compact                     Generar salida compacta
+    --debug                       Habilitar salida de depuración
+    --verbose                     Aumentar verbosidad (-vv, -vvv)
+    --strict                      Modo de validación estricto
     --help                        Mostrar información de ayuda
 ```
 
@@ -346,7 +358,7 @@ autocompose config init
 defaults:
   output: docker-compose.yml
   format: yaml
-  compose_version: "3.8"
+  compose_version: "3.9"
   
 filters:
   exclude_system: true
@@ -395,7 +407,7 @@ AutoCompose v1.5 incluye validación completa:
 autocompose validate docker-compose.yml
 
 # Validar con versión específica
-autocompose validate -v 3.8 docker-compose.yml
+autocompose validate --version 3.8 docker-compose.yml
 
 # Validación estricta
 autocompose validate --strict docker-compose.yml
@@ -520,12 +532,17 @@ autocompose debug-info > debug.txt
 | Opción | Corta | Descripción | Por Defecto |
 |--------|-------|-------------|-------------|
 | `--output` | `-o` | Ruta del archivo de salida | docker-compose.yml |
-| `--format` | `-f` | Formato de salida (yaml/json) | yaml |
-| `--compose-version` | `-v` | Versión del archivo compose | 3.8 |
-| `--dry-run` | | Vista previa sin escribir | false |
+| `--filter` | `-f` | Filtrar por patrón (soporta * y ?) | |
+| `--version` | `-v` | Versión del archivo compose | 3.9 |
 | `--interactive` | `-i` | Selección interactiva | false |
+| `--format` | | Formato de salida (yaml/json/toml) | yaml |
+| `--dry-run` | | Vista previa sin escribir | false |
+| `--preview` | | Mostrar vista previa sin escribir | false |
+| `--compact` | | Salida compacta | false |
+| `--debug` | | Modo depuración | false |
+| `--verbose` | | Verbosidad (-v, -vv, -vvv) | 0 |
 | `--help` | `-h` | Mostrar mensaje de ayuda | |
-| `--version` | `-V` | Mostrar versión | |
+| `--version` | | Mostrar versión de la herramienta | |
 
 ### Opciones de Filtrado
 
@@ -533,9 +550,21 @@ autocompose debug-info > debug.txt
 |--------|-------------|---------|
 | `--filter` | Filtrar por patrón de nombre | `--filter "web-*"` |
 | `--exclude` | Excluir por patrón | `--exclude "*-test"` |
+| `--exclude-system` | Excluir contenedores del sistema | `--exclude-system` |
 | `--running-only` | Solo contenedores en ejecución | `--running-only` |
 | `--all` | Incluir contenedores detenidos | `--all` |
 | `--label-filter` | Filtrar por etiqueta | `--label-filter "env=prod"` |
+| `--has-label` | Contenedor con etiqueta | `--has-label "backup"` |
+| `--state` | Filtrar por estado | `--state running` |
+
+### Opciones de Docker
+
+| Opción | Descripción | Ejemplo |
+|--------|-------------|---------|
+| `--docker-host` | URL del host Docker | `--docker-host tcp://remote:2375` |
+| `--context` | Contexto Docker | `--context production` |
+| `--include-networks` | Incluir definiciones de red | `--include-networks` |
+| `--include-volumes` | Incluir definiciones de volumen | `--include-volumes` |
 
 ## Referencia API
 
@@ -611,7 +640,7 @@ autocompose -o fullstack.yml
 ```
 
 ```yaml
-version: '3.8'
+version: '3.9'
 services:
   webapp:
     image: nginx:latest

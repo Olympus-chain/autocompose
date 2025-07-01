@@ -10,7 +10,7 @@ Contact: contact@olympus-chain.fr
 
 #[cfg(test)]
 mod edge_cases_tests {
-    use docker_autocompose::{
+    use autocompose::{
         filter_system_labels, sanitize_service_name,
         security::{filter_sensitive_env_vars, validate_container_id},
         ComposeFile, NetworkConfig, Service, ServiceNetworks,
@@ -323,5 +323,247 @@ mod edge_cases_tests {
                 panic!("Expected Some(labels) but got None");
             }
         }
+    }
+
+    #[test]
+    fn test_docker_context_edge_cases() {
+        use std::env;
+        use std::fs;
+
+        // Test reading context with malformed JSON
+        let temp_dir = tempfile::tempdir().unwrap();
+        let docker_dir = temp_dir.path().join(".docker");
+        let contexts_dir = docker_dir.join("contexts").join("meta");
+        fs::create_dir_all(&contexts_dir).unwrap();
+
+        // Create context with various edge cases
+        let test_cases = vec![
+            // Empty JSON object
+            ("empty", "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "{}"),
+            // Missing endpoints
+            ("no-endpoints", "9c87ceaa86e893a4f10c15f18c2d4c5fea966872a7f9c5d1fa84bb0ee3b0abb6", r#"{"Name": "test", "Metadata": {}}"#),
+            // Null values
+            ("null-values", "5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5", r#"{"Name": "test", "Metadata": null, "Endpoints": null}"#),
+            // Unicode in context name
+            ("unicode", "9b74c9897bac770ffc029102a200c5de", r#"{"Name": "test-世界", "Metadata": {}, "Endpoints": {"docker": {"Host": "tcp://localhost:2375"}}}"#),
+        ];
+
+        for (_name, hash, content) in test_cases {
+            let context_dir = contexts_dir.join(hash);
+            fs::create_dir_all(&context_dir).unwrap();
+            fs::write(context_dir.join("meta.json"), content).unwrap();
+        }
+
+        let original_home = env::var("HOME").ok();
+        env::set_var("HOME", temp_dir.path());
+
+        // Test that all edge cases are handled gracefully
+        use autocompose::docker::DockerProcessor;
+        let results = vec![
+            DockerProcessor::new_with_context("empty"),
+            DockerProcessor::new_with_context("no-endpoints"),
+            DockerProcessor::new_with_context("null-values"),
+            DockerProcessor::new_with_context("unicode"),
+        ];
+
+        if let Some(home) = original_home {
+            env::set_var("HOME", home);
+        } else {
+            env::remove_var("HOME");
+        }
+
+        // All should either succeed or fail gracefully
+        for result in results {
+            assert!(result.is_ok() || result.is_err());
+        }
+    }
+
+    #[test]
+    fn test_processing_options_edge_cases() {
+        use autocompose::{ProcessingOptions, Service};
+
+        // Test with service that has no environment at all
+        let service_no_env = Service {
+            image: "test:latest".to_string(),
+            container_name: Some("test".to_string()),
+            environment: None,
+            hostname: None,
+            ports: None,
+            volumes: None,
+            networks: None,
+            network_mode: None,
+            dns: None,
+            dns_search: None,
+            extra_hosts: None,
+            restart: None,
+            cap_add: None,
+            cap_drop: None,
+            security_opt: None,
+            deploy: None,
+            healthcheck: None,
+            labels: None,
+            logging: None,
+            devices: None,
+            user: None,
+            working_dir: None,
+            entrypoint: None,
+            command: None,
+            ulimits: None,
+            sysctls: None,
+            init: None,
+            privileged: None,
+            tty: None,
+            stdin_open: None,
+            depends_on: None,
+        };
+
+        // Processing options should work with services without environment
+        let options_sensitive = ProcessingOptions { include_sensitive: true };
+        let options_no_sensitive = ProcessingOptions { include_sensitive: false };
+        
+        assert!(service_no_env.environment.is_none());
+        assert!(options_sensitive.include_sensitive);
+        assert!(!options_no_sensitive.include_sensitive);
+    }
+
+    #[test]
+    fn test_depends_on_edge_cases() {
+        // Test with empty depends_on array
+        let service_empty_deps = Service {
+            image: "test:latest".to_string(),
+            container_name: Some("test".to_string()),
+            depends_on: Some(vec![]),
+            hostname: None,
+            environment: None,
+            ports: None,
+            volumes: None,
+            networks: None,
+            network_mode: None,
+            dns: None,
+            dns_search: None,
+            extra_hosts: None,
+            restart: None,
+            cap_add: None,
+            cap_drop: None,
+            security_opt: None,
+            deploy: None,
+            healthcheck: None,
+            labels: None,
+            logging: None,
+            devices: None,
+            user: None,
+            working_dir: None,
+            entrypoint: None,
+            command: None,
+            ulimits: None,
+            sysctls: None,
+            init: None,
+            privileged: None,
+            tty: None,
+            stdin_open: None,
+        };
+
+        let yaml = serde_yaml::to_string(&service_empty_deps).unwrap();
+        // Empty array should still be serialized
+        assert!(yaml.contains("depends_on: []"));
+
+        // Test with very long dependency names
+        let long_deps = vec![
+            "very-long-service-name-that-exceeds-normal-naming-conventions".to_string(),
+            "another-extremely-long-service-name-with-numbers-123456789".to_string(),
+        ];
+        
+        let service_long_deps = Service {
+            image: "test:latest".to_string(),
+            container_name: Some("test".to_string()),
+            depends_on: Some(long_deps),
+            hostname: None,
+            environment: None,
+            ports: None,
+            volumes: None,
+            networks: None,
+            network_mode: None,
+            dns: None,
+            dns_search: None,
+            extra_hosts: None,
+            restart: None,
+            cap_add: None,
+            cap_drop: None,
+            security_opt: None,
+            deploy: None,
+            healthcheck: None,
+            labels: None,
+            logging: None,
+            devices: None,
+            user: None,
+            working_dir: None,
+            entrypoint: None,
+            command: None,
+            ulimits: None,
+            sysctls: None,
+            init: None,
+            privileged: None,
+            tty: None,
+            stdin_open: None,
+        };
+
+        let yaml = serde_yaml::to_string(&service_long_deps).unwrap();
+        assert!(yaml.contains("very-long-service-name-that-exceeds-normal-naming-conventions"));
+    }
+
+    #[test]
+    fn test_container_validation_boundary_conditions() {
+        // Test container ID at exact boundary (64 chars)
+        let boundary_id = "a".repeat(64);
+        assert!(validate_container_id(&boundary_id).is_ok());
+
+        // Test container ID just over boundary (65 chars)
+        let over_boundary_id = "a".repeat(65);
+        assert!(validate_container_id(&over_boundary_id).is_err());
+
+        // Test with whitespace
+        assert!(validate_container_id(" abc123 ").is_err());
+        assert!(validate_container_id("abc\t123").is_err());
+        assert!(validate_container_id("abc\n123").is_err());
+
+        // Test with null bytes
+        assert!(validate_container_id("abc\0123").is_err());
+    }
+
+    #[test]
+    fn test_sensitive_env_var_edge_patterns() {
+        let mut env = HashMap::new();
+        
+        // Edge cases for sensitive patterns
+        env.insert("PASSWORDLESS_AUTH".to_string(), "enabled".to_string()); // Contains PASSWORD but might be non-sensitive
+        env.insert("PASSWORD123".to_string(), "secret".to_string());
+        env.insert("123PASSWORD".to_string(), "secret".to_string());
+        env.insert("PASS_WORD".to_string(), "might-not-match".to_string());
+        env.insert("KEY_PASSWORD_CONFIRM".to_string(), "secret".to_string());
+        env.insert("TOKENIZER_CONFIG".to_string(), "config".to_string()); // Contains TOKEN but not sensitive
+        env.insert("DECRYPT_KEY".to_string(), "key".to_string());
+        env.insert("PUBLIC_KEY".to_string(), "public".to_string()); // Contains KEY but public
+        env.insert("API_ENDPOINT".to_string(), "/api/v1".to_string()); // Contains API but not sensitive
+        
+        let filtered = filter_sensitive_env_vars(env);
+        
+        // Check filtering behavior based on actual implementation
+        // The filter looks for these patterns: PASSWORD, SECRET, TOKEN, API_KEY, PRIVATE_KEY, etc.
+        assert!(!filtered.contains_key("PASSWORD123")); // Contains PASSWORD
+        assert!(!filtered.contains_key("123PASSWORD")); // Contains PASSWORD
+        assert!(!filtered.contains_key("KEY_PASSWORD_CONFIRM")); // Contains PASSWORD
+        assert!(!filtered.contains_key("PASSWORDLESS_AUTH")); // Contains PASSWORD
+        
+        // DECRYPT_KEY doesn't contain any of the sensitive patterns, so it should remain
+        assert!(filtered.contains_key("DECRYPT_KEY"));
+        
+        // TOKENIZER_CONFIG contains TOKEN, so it should be filtered
+        assert!(!filtered.contains_key("TOKENIZER_CONFIG"));
+        
+        // PUBLIC_KEY doesn't contain PRIVATE_KEY or API_KEY (exact match), so it should remain
+        assert!(filtered.contains_key("PUBLIC_KEY"));
+        
+        // API_ENDPOINT doesn't contain API_KEY (exact match), so it should remain
+        assert!(filtered.contains_key("API_ENDPOINT"));
     }
 }

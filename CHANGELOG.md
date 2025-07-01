@@ -18,6 +18,66 @@ This document lists the changes made to the **autocompose-podman-docker** projec
 
 ## Recent Changes
 
+- **Version 1.5.0** *(2025-01-30)*
+  Major update with full feature integration and bug fixes:
+  
+  **Configuration System**
+  - Fixed configuration file loading and application
+  - Implemented proper configuration override chain: CLI args > config file > defaults
+  - Added all missing configuration keys to the config set command
+  - Added helpful error messages with suggestions for incorrect configuration keys
+  
+  **New Command-Line Options**
+  - Added `--filter` (`-f`): Filter containers by pattern with wildcard support
+  - Added `--exclude`: Exclude containers matching patterns
+  - Added `--exclude-system`: Exclude system containers
+  - Added `--docker-host`: Connect to specific Docker host
+  - Added `--context`: Full Docker context support (reads from ~/.docker/contexts/)
+  - Added `--include-networks`: Include network definitions in output
+  - Added `--include-volumes`: Include volume definitions in output
+  - Added `--debug`: Enable debug output
+  - Added `--verbose` (`-v`): Set verbosity level (can be used multiple times)
+  - Added `--preview`: Preview output without writing to file
+  - Added `--compact`: Generate compact output
+  - Added `--running-only`: Only process running containers (Podman)
+  - Added `--strict`: Strict validation mode
+  - Added short form `-v` for version option
+  
+  **Interactive Mode**
+  - Fixed `-i` interactive mode in main binary
+  - Added full interactive container selection for both Docker and Podman
+  - Interactive mode now shows container name, image, ID, and state
+  
+  **Filtering and Pattern Matching**
+  - Implemented comprehensive filtering functions for Docker and Podman
+  - Added regex-based wildcard pattern matching (* and ?)
+  - Filters work on container names, images, and IDs
+  - Support for multiple filter patterns
+  
+  **Docker Context Support**
+  - Implemented full Docker context reading and switching
+  - Reads contexts from ~/.docker/contexts/meta/
+  - Supports "current" context from Docker CLI config
+  - Handles DOCKER_HOST environment variable for default context
+  - SHA-256 hashing for context directory names
+  
+  **Output Formats**
+  - Fixed TOML format generation
+  - Added compact output mode for all formats (YAML, JSON, TOML)
+  - Proper formatting based on selected output format
+  
+  **Debug and Logging**
+  - Added multi-level debug output (DEBUG, INFO, TRACE)
+  - Debug messages show configuration loading, filtering decisions, and processing steps
+  - Verbose mode increases detail level progressively
+  
+  **Bug Fixes**
+  - Fixed unused variable warnings
+  - Fixed type mismatches with version field
+  - Fixed compilation warnings with deprecated Bollard APIs
+  - Fixed configuration not being applied to container processing
+  - Fixed interactive mode not working in main binary
+
 - **Commit pending** *(2025-06-16)*
   Fixed documentation code block formatting - Added proper white-space handling (pre-wrap) to ensure code blocks display line breaks correctly
 

@@ -8,7 +8,7 @@ Commercial use, redistribution, or reuse in other software is prohibited without
 Contact: contact@olympus-chain.fr
 */
 
-use docker_autocompose::{ComposeFile, Service};
+use autocompose::{ComposeFile, Service};
 use std::collections::HashMap;
 
 #[cfg(test)]
@@ -93,7 +93,7 @@ mod integration_tests {
 
         // In real usage, the filtering happens in docker.rs/podman.rs
         // This test verifies the compose file doesn't contain sensitive data
-        let filtered_env = docker_autocompose::security::filter_sensitive_env_vars(env);
+        let filtered_env = autocompose::security::filter_sensitive_env_vars(env);
 
         let service = Service {
             image: "myapp:latest".to_string(),

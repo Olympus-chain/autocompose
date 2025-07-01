@@ -38,11 +38,14 @@ pub enum Commands {
 
 #[derive(Parser)]
 pub struct DockerArgs {
+    #[arg(help = "Container names to include")]
+    pub containers: Vec<String>,
+
     #[arg(short, long, default_value = "docker-compose.yml")]
     pub output: PathBuf,
 
-    #[arg(short, long, default_value = "3.9")]
-    pub version: String,
+    #[arg(short = 'V', long = "version", default_value = "3.9")]
+    pub compose_version: String,
 
     #[arg(short, long, help = "Only include running containers")]
     pub running_only: bool,
@@ -50,8 +53,14 @@ pub struct DockerArgs {
     #[arg(short, long, help = "Preview without writing file")]
     pub dry_run: bool,
 
+    #[arg(long = "preview", help = "Preview without writing file (alias for --dry-run)")]
+    pub preview: bool,
+
     #[arg(long, help = "Output format")]
     pub format: Option<OutputFormat>,
+
+    #[arg(short = 'f', long, help = "Filter containers by pattern (supports wildcards and multiple values)", value_delimiter = ',')]
+    pub filter: Option<Vec<String>>,
 
     #[arg(long, help = "Filter containers by name pattern")]
     pub filter_name: Option<String>,
@@ -59,8 +68,14 @@ pub struct DockerArgs {
     #[arg(long, help = "Filter containers by image pattern")]
     pub filter_image: Option<String>,
 
+    #[arg(long, help = "Exclude containers by pattern (supports wildcards and multiple values)", value_delimiter = ',')]
+    pub exclude: Option<Vec<String>>,
+
     #[arg(long, help = "Exclude containers by name pattern")]
     pub exclude_name: Option<String>,
+
+    #[arg(long, help = "Exclude system containers (default: true)")]
+    pub exclude_system: bool,
 
     #[arg(long, help = "Include system containers")]
     pub include_system: bool,
@@ -73,21 +88,75 @@ pub struct DockerArgs {
 
     #[arg(long, help = "Generate separate volume definitions")]
     pub separate_volumes: bool,
+
+    #[arg(long, help = "Filter containers by label (format: key=value)")]
+    pub label_filter: Option<Vec<String>>,
+
+    #[arg(long, help = "Include only containers with specific label")]
+    pub has_label: Option<String>,
+
+    #[arg(long, help = "Filter by container state (running, exited, paused)")]
+    pub state: Option<String>,
+
+    #[arg(long, help = "Include all containers regardless of state")]
+    pub all: bool,
+
+    #[arg(long, help = "Include sensitive environment variables")]
+    pub include_sensitive: bool,
+
+    #[arg(long, help = "Add health checks to services")]
+    pub add_healthchecks: bool,
+
+    #[arg(long, help = "Add resource limits to services")]
+    pub resource_limits: bool,
+
+    #[arg(long, help = "Include network definitions in output")]
+    pub include_networks: bool,
+
+    #[arg(long, help = "Include volume definitions in output")]
+    pub include_volumes: bool,
+
+    #[arg(long, help = "Docker host to connect to")]
+    pub docker_host: Option<String>,
+
+    #[arg(long, help = "Docker context to use")]
+    pub context: Option<String>,
+
+    #[arg(long, help = "Enable debug output")]
+    pub debug: bool,
+
+    #[arg(short = 'v', long, help = "Increase verbosity (can be used multiple times)", action = clap::ArgAction::Count)]
+    pub verbose: u8,
+
+    #[arg(long, help = "Compact output format")]
+    pub compact: bool,
 }
 
 #[derive(Parser)]
 pub struct PodmanArgs {
+    #[arg(help = "Container names to include")]
+    pub containers: Vec<String>,
+
     #[arg(short, long, default_value = "docker-compose.yml")]
     pub output: PathBuf,
 
-    #[arg(short, long, default_value = "3.9")]
-    pub version: String,
+    #[arg(short = 'V', long = "version", default_value = "3.9")]
+    pub compose_version: String,
+
+    #[arg(short, long, help = "Only include running containers")]
+    pub running_only: bool,
 
     #[arg(short, long, help = "Preview without writing file")]
     pub dry_run: bool,
 
+    #[arg(long = "preview", help = "Preview without writing file (alias for --dry-run)")]
+    pub preview: bool,
+
     #[arg(long, help = "Output format")]
     pub format: Option<OutputFormat>,
+
+    #[arg(short = 'f', long, help = "Filter containers by pattern (supports wildcards and multiple values)", value_delimiter = ',')]
+    pub filter: Option<Vec<String>>,
 
     #[arg(long, help = "Filter containers by name pattern")]
     pub filter_name: Option<String>,
@@ -95,8 +164,14 @@ pub struct PodmanArgs {
     #[arg(long, help = "Filter containers by image pattern")]
     pub filter_image: Option<String>,
 
+    #[arg(long, help = "Exclude containers by pattern (supports wildcards and multiple values)", value_delimiter = ',')]
+    pub exclude: Option<Vec<String>>,
+
     #[arg(long, help = "Exclude containers by name pattern")]
     pub exclude_name: Option<String>,
+
+    #[arg(long, help = "Exclude system containers (default: true)")]
+    pub exclude_system: bool,
 
     #[arg(long, help = "Include system containers")]
     pub include_system: bool,
@@ -109,6 +184,48 @@ pub struct PodmanArgs {
 
     #[arg(long, help = "Generate separate volume definitions")]
     pub separate_volumes: bool,
+
+    #[arg(long, help = "Filter containers by label (format: key=value)")]
+    pub label_filter: Option<Vec<String>>,
+
+    #[arg(long, help = "Include only containers with specific label")]
+    pub has_label: Option<String>,
+
+    #[arg(long, help = "Filter by container state (running, exited, paused)")]
+    pub state: Option<String>,
+
+    #[arg(long, help = "Include all containers regardless of state")]
+    pub all: bool,
+
+    #[arg(long, help = "Include sensitive environment variables")]
+    pub include_sensitive: bool,
+
+    #[arg(long, help = "Add health checks to services")]
+    pub add_healthchecks: bool,
+
+    #[arg(long, help = "Add resource limits to services")]
+    pub resource_limits: bool,
+
+    #[arg(long, help = "Include pods (Podman specific)")]
+    pub include_pods: bool,
+
+    #[arg(long, help = "Use rootless mode (Podman specific)")]
+    pub podman_rootless: bool,
+
+    #[arg(long, help = "Include network definitions in output")]
+    pub include_networks: bool,
+
+    #[arg(long, help = "Include volume definitions in output")]
+    pub include_volumes: bool,
+
+    #[arg(long, help = "Enable debug output")]
+    pub debug: bool,
+
+    #[arg(short = 'v', long, help = "Increase verbosity (can be used multiple times)", action = clap::ArgAction::Count)]
+    pub verbose: u8,
+
+    #[arg(long, help = "Compact output format")]
+    pub compact: bool,
 }
 
 #[derive(Parser)]
@@ -150,6 +267,9 @@ pub struct ValidateArgs {
 
     #[arg(long, help = "Output format for validation results")]
     pub format: Option<OutputFormat>,
+
+    #[arg(long, help = "Enable strict validation mode")]
+    pub strict: bool,
 }
 
 #[derive(Clone, ValueEnum)]

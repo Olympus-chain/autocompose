@@ -10,7 +10,7 @@ Contact: contact@olympus-chain.fr
 
 #[cfg(test)]
 mod docker_tests {
-    use docker_autocompose::{
+    use autocompose::{
         Deploy, HealthCheck, NetworkConfig, ResourceLimits, Resources, Service, ServiceNetworks,
     };
     use std::collections::HashMap;

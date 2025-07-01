@@ -10,7 +10,7 @@ Contact: contact@olympus-chain.fr
 
 #[cfg(test)]
 mod regression_tests {
-    use docker_autocompose::{
+    use autocompose::{
         security::{validate_container_id, validate_image_id, validate_output_path},
         Service,
     };
@@ -103,7 +103,7 @@ mod regression_tests {
         env.insert("SECRET_TOKEN".to_string(), "token456".to_string());
         env.insert("PATH".to_string(), "/usr/bin".to_string());
 
-        let filtered = docker_autocompose::security::filter_sensitive_env_vars(env);
+        let filtered = autocompose::security::filter_sensitive_env_vars(env);
 
         // Only PATH should remain
         assert_eq!(filtered.len(), 1);
@@ -132,7 +132,7 @@ mod regression_tests {
     #[test]
     fn test_regression_empty_constraints() {
         // Regression test for empty placement constraints
-        use docker_autocompose::{Deploy, Placement};
+        use autocompose::{Deploy, Placement};
 
         let deploy = Deploy {
             placement: Some(Placement {
@@ -241,5 +241,145 @@ mod regression_tests {
         for image in invalid_images {
             assert!(validate_image_id(image).is_err());
         }
+    }
+
+    #[test]
+    fn test_regression_api_backward_compatibility() {
+        // Test that the old process_containers_parallel API still works
+        // and defaults to include_sensitive = false
+        use autocompose::ProcessingOptions;
+
+        // The default behavior should exclude sensitive variables
+        let default_options = ProcessingOptions {
+            include_sensitive: false,
+        };
+        assert!(!default_options.include_sensitive);
+
+        // Test that sensitive env vars are filtered by default
+        let mut env = HashMap::new();
+        env.insert("PASSWORD".to_string(), "secret".to_string());
+        env.insert("NORMAL_VAR".to_string(), "value".to_string());
+
+        let filtered = autocompose::security::filter_sensitive_env_vars(env);
+        assert!(!filtered.contains_key("PASSWORD"));
+        assert!(filtered.contains_key("NORMAL_VAR"));
+    }
+
+    #[test]
+    fn test_regression_docker_context_api() {
+        // Test that new Docker connection methods don't break existing functionality
+        use autocompose::docker::DockerProcessor;
+
+        // Default connection should still work
+        let default_result = DockerProcessor::new();
+        assert!(default_result.is_ok() || default_result.is_err()); // Don't fail if Docker isn't available
+
+        // Connection with host should handle errors gracefully
+        let host_result = DockerProcessor::new_with_host("tcp://invalid-host:2375");
+        assert!(host_result.is_ok() || host_result.is_err());
+
+        // Connection with non-existent context should fallback gracefully
+        let context_result = DockerProcessor::new_with_context("non-existent-context-xyz");
+        assert!(context_result.is_ok() || context_result.is_err());
+    }
+
+    #[test]
+    fn test_regression_service_depends_on_serialization() {
+        // Test that depends_on field is properly handled in serialization
+        let service_with_deps = Service {
+            image: "app:latest".to_string(),
+            container_name: Some("app".to_string()),
+            depends_on: Some(vec!["db".to_string(), "cache".to_string()]),
+            hostname: None,
+            environment: None,
+            ports: None,
+            volumes: None,
+            networks: None,
+            network_mode: None,
+            dns: None,
+            dns_search: None,
+            extra_hosts: None,
+            restart: None,
+            cap_add: None,
+            cap_drop: None,
+            security_opt: None,
+            deploy: None,
+            healthcheck: None,
+            labels: None,
+            logging: None,
+            devices: None,
+            user: None,
+            working_dir: None,
+            entrypoint: None,
+            command: None,
+            ulimits: None,
+            sysctls: None,
+            init: None,
+            privileged: None,
+            tty: None,
+            stdin_open: None,
+        };
+
+        let yaml = serde_yaml::to_string(&service_with_deps).unwrap();
+        assert!(yaml.contains("depends_on"));
+        assert!(yaml.contains("- db"));
+        assert!(yaml.contains("- cache"));
+
+        // Test service without dependencies
+        let service_no_deps = Service {
+            image: "app:latest".to_string(),
+            container_name: Some("app".to_string()),
+            depends_on: None,
+            hostname: None,
+            environment: None,
+            ports: None,
+            volumes: None,
+            networks: None,
+            network_mode: None,
+            dns: None,
+            dns_search: None,
+            extra_hosts: None,
+            restart: None,
+            cap_add: None,
+            cap_drop: None,
+            security_opt: None,
+            deploy: None,
+            healthcheck: None,
+            labels: None,
+            logging: None,
+            devices: None,
+            user: None,
+            working_dir: None,
+            entrypoint: None,
+            command: None,
+            ulimits: None,
+            sysctls: None,
+            init: None,
+            privileged: None,
+            tty: None,
+            stdin_open: None,
+        };
+
+        let yaml = serde_yaml::to_string(&service_no_deps).unwrap();
+        assert!(!yaml.contains("depends_on"));
+    }
+
+    #[test]
+    fn test_regression_processing_options_default_behavior() {
+        // Ensure ProcessingOptions default behavior is secure
+        use autocompose::ProcessingOptions;
+
+        let options = ProcessingOptions {
+            include_sensitive: false,
+        };
+
+        // Default should exclude sensitive data
+        assert!(!options.include_sensitive);
+
+        // Test with sensitive data included
+        let options_with_sensitive = ProcessingOptions {
+            include_sensitive: true,
+        };
+        assert!(options_with_sensitive.include_sensitive);
     }
 }

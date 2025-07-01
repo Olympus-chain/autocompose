@@ -10,7 +10,7 @@ Contact: contact@olympus-chain.fr
 
 #[cfg(test)]
 mod podman_tests {
-    use docker_autocompose::{normalize_duration, normalize_duration_from_ns, UlimitConfig};
+    use autocompose::{normalize_duration, normalize_duration_from_ns, UlimitConfig};
     use std::collections::HashMap;
 
     #[test]
@@ -91,7 +91,7 @@ mod podman_tests {
 
     #[test]
     fn test_container_name_sanitization() {
-        use docker_autocompose::sanitize_service_name;
+        use autocompose::sanitize_service_name;
 
         assert_eq!(sanitize_service_name("/container-name"), "container-name");
         assert_eq!(sanitize_service_name("my_container"), "my_container");

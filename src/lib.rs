@@ -15,6 +15,8 @@ pub mod podman;
 pub mod security;
 pub mod validation;
 
+pub use docker::ProcessingOptions;
+
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use thiserror::Error;

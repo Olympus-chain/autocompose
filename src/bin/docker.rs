@@ -1,3 +1,5 @@
+#![allow(deprecated)]
+
 use bollard::container::{InspectContainerOptions, ListContainersOptions};
 use bollard::models::RestartPolicyNameEnum;
 use bollard::Docker;
